@@ -1,0 +1,390 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+      xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dashboard Empleado - BarberApp</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.8.1/font/bootstrap-icons.css">
+    <style>
+        .sidebar {
+            min-height: 100vh;
+            background: linear-gradient(135deg, #2c3e50 0%, #4a6491 100%);
+        }
+        .sidebar a {
+            color: white;
+            text-decoration: none;
+            padding: 12px 15px;
+            display: block;
+            border-radius: 5px;
+            margin: 5px 0;
+        }
+        .sidebar a:hover {
+            background: rgba(255, 255, 255, 0.1);
+        }
+        .sidebar a.active {
+            background: rgba(255, 255, 255, 0.2);
+        }
+        .stats-card {
+            border-radius: 10px;
+            transition: transform 0.3s;
+        }
+        .stats-card:hover {
+            transform: translateY(-5px);
+        }
+        .calendar-day {
+            border: 1px solid #dee2e6;
+            padding: 10px;
+            height: 100px;
+        }
+        .calendar-day.today {
+            background-color: #e3f2fd;
+            border-color: #2196f3;
+        }
+        .appointment-badge {
+            font-size: 0.7rem;
+            margin: 2px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container-fluid">
+        <div class="row">
+            <!-- SIDEBAR CORREGIDO -->
+            <div class="col-md-3 col-lg-2 sidebar d-md-block p-3">
+                <div class="position-sticky pt-3">
+                    <h4 class="text-white text-center mb-4">
+                        <i class="bi bi-scissors"></i> BarberApp
+                    </h4>
+                    
+                    <div class="text-center mb-4">
+                        <div class="bg-white rounded-circle d-inline-flex align-items-center justify-content-center" 
+                             style="width: 80px; height: 80px;">
+                            <i class="bi bi-person-badge text-dark" style="font-size: 2rem;"></i>
+                        </div>
+                        <h5 class="text-white mt-2" sec:authentication="name">Empleado</h5>
+                        <span class="badge bg-warning">BARBERO</span>
+                    </div>
+                    
+                    <ul class="nav flex-column">
+                        <li class="nav-item">
+                            <a class="nav-link active" href="/empleado/dashboard">
+                                <i class="bi bi-speedometer2"></i> Dashboard
+                            </a>
+                        </li>
+                        <!-- CORREGIDO: Ruta que SÍ existe -->
+                        <li class="nav-item">
+                            <a class="nav-link" href="/citas/empleado">
+                                <i class="bi bi-calendar-week"></i> Mis Citas
+                            </a>
+                        </li>
+                        <!-- CORREGIDO: Ruta que SÍ existe -->
+                        <li class="nav-item">
+                            <a class="nav-link" href="/citas/empleado/hoy">
+                                <i class="bi bi-calendar-check"></i> Citas Hoy
+                            </a>
+                        </li>
+                        <!-- Página simple que crearemos -->
+                        <li class="nav-item">
+                            <a class="nav-link" href="/empleado/clientes">
+                                <i class="bi bi-people"></i> Mis Clientes
+                            </a>
+                        </li>
+                        <!-- TEMPORAL: Redirigir a Dashboard hasta que creemos la página -->
+                        <li class="nav-item">
+                            <a class="nav-link" href="/empleado/dashboard">
+                                <i class="bi bi-clock"></i> Mis Horarios (Próximamente)
+                            </a>
+                        </li>
+                        <!-- Página simple que crearemos -->
+                        <li class="nav-item">
+                            <a class="nav-link" href="/empleado/perfil">
+                                <i class="bi bi-person-circle"></i> Mi Perfil
+                            </a>
+                        </li>
+                        <li class="nav-item mt-4">
+                            <a class="nav-link text-warning" href="/auth/logout">
+                                <i class="bi bi-box-arrow-right"></i> Cerrar Sesión
+                            </a>
+                        </li>
+                    </ul>
+                </div>
+            </div>
+            
+            <!-- Main Content -->
+            <div class="col-md-9 col-lg-10 ms-sm-auto px-md-4">
+                <!-- Navbar -->
+                <nav class="navbar navbar-light bg-white border-bottom shadow-sm">
+                    <div class="container-fluid">
+                        <span class="navbar-brand fw-bold text-dark">
+                            <i class="bi bi-briefcase"></i> Dashboard Barbero
+                        </span>
+                        <div class="navbar-text">
+                            <small class="text-muted">
+                                <i class="bi bi-calendar"></i> 
+                                <span th:text="${#dates.format(#dates.createNow(), 'dd/MM/yyyy')}"></span>
+                            </small>
+                        </div>
+                    </div>
+                </nav>
+                
+                <!-- Content -->
+                <div class="container-fluid py-4">
+                    <h2 class="mb-4">Bienvenido, <span sec:authentication="name">Barbero</span>!</h2>
+                    
+                    <!-- Stats Cards -->
+                    <div class="row mb-4">
+                        <div class="col-md-3 mb-3">
+                            <div class="card stats-card border-primary">
+                                <div class="card-body">
+                                    <div class="d-flex justify-content-between align-items-center">
+                                        <div>
+                                            <h6 class="text-muted">Citas Hoy</h6>
+                                            <h3 class="mb-0">8</h3>
+                                        </div>
+                                        <div class="bg-primary rounded-circle p-3">
+                                            <i class="bi bi-calendar-day text-white"></i>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="col-md-3 mb-3">
+                            <div class="card stats-card border-success">
+                                <div class="card-body">
+                                    <div class="d-flex justify-content-between align-items-center">
+                                        <div>
+                                            <h6 class="text-muted">Clientes Atendidos</h6>
+                                            <h3 class="mb-0">24</h3>
+                                        </div>
+                                        <div class="bg-success rounded-circle p-3">
+                                            <i class="bi bi-people text-white"></i>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="col-md-3 mb-3">
+                            <div class="card stats-card border-warning">
+                                <div class="card-body">
+                                    <div class="d-flex justify-content-between align-items-center">
+                                        <div>
+                                            <h6 class="text-muted">Ingresos Hoy</h6>
+                                            <h5 class="mb-0">$1,850</h5>
+                                        </div>
+                                        <div class="bg-warning rounded-circle p-3">
+                                            <i class="bi bi-cash text-white"></i>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="col-md-3 mb-3">
+                            <div class="card stats-card border-info">
+                                <div class="card-body">
+                                    <div class="d-flex justify-content-between align-items-center">
+                                        <div>
+                                            <h6 class="text-muted">Calificación</h6>
+                                            <h5 class="mb-0">4.8/5.0</h5>
+                                        </div>
+                                        <div class="bg-info rounded-circle p-3">
+                                            <i class="bi bi-star text-white"></i>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Today's Schedule -->
+                    <div class="row mb-4">
+                        <div class="col-md-8">
+                            <div class="card">
+                                <div class="card-header bg-primary text-white">
+                                    <h5 class="mb-0">
+                                        <i class="bi bi-calendar-day"></i> Agenda de Hoy
+                                    </h5>
+                                </div>
+                                <div class="card-body">
+                                    <div class="table-responsive">
+                                        <table class="table table-hover">
+                                            <thead>
+                                                <tr>
+                                                    <th>Hora</th>
+                                                    <th>Cliente</th>
+                                                    <th>Servicio</th>
+                                                    <th>Duración</th>
+                                                    <th>Estado</th>
+                                                    <th>Acciones</th>
+                                                </tr>
+                                            </thead>
+                                            <tbody>
+                                                <tr>
+                                                    <td>09:00 AM</td>
+                                                    <td>Juan Pérez</td>
+                                                    <td>Corte Básico</td>
+                                                    <td>30 min</td>
+                                                    <td><span class="badge bg-success">Confirmada</span></td>
+                                                    <td>
+                                                        <button class="btn btn-sm btn-outline-primary">
+                                                            <i class="bi bi-check-circle"></i>
+                                                        </button>
+                                                    </td>
+                                                </tr>
+                                                <tr>
+                                                    <td>09:30 AM</td>
+                                                    <td>Carlos López</td>
+                                                    <td>Corte + Barba</td>
+                                                    <td>45 min</td>
+                                                    <td><span class="badge bg-warning">Pendiente</span></td>
+                                                    <td>
+                                                        <button class="btn btn-sm btn-outline-warning">
+                                                            <i class="bi bi-clock"></i>
+                                                        </button>
+                                                    </td>
+                                                </tr>
+                                                <tr>
+                                                    <td>10:15 AM</td>
+                                                    <td>María García</td>
+                                                    <td>Tinte</td>
+                                                    <td>60 min</td>
+                                                    <td><span class="badge bg-info">En Proceso</span></td>
+                                                    <td>
+                                                        <button class="btn btn-sm btn-outline-info">
+                                                            <i class="bi bi-play-circle"></i>
+                                                        </button>
+                                                    </td>
+                                                </tr>
+                                                <tr>
+                                                    <td>11:15 AM</td>
+                                                    <td>Roberto Sánchez</td>
+                                                    <td>Corte Premium</td>
+                                                    <td>45 min</td>
+                                                    <td><span class="badge bg-secondary">Programada</span></td>
+                                                    <td>
+                                                        <button class="btn btn-sm btn-outline-secondary">
+                                                            <i class="bi bi-calendar"></i>
+                                                        </button>
+                                                    </td>
+                                                </tr>
+                                            </tbody>
+                                        </table>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <!-- Quick Stats -->
+                        <div class="col-md-4">
+                            <div class="card">
+                                <div class="card-header bg-success text-white">
+                                    <h5 class="mb-0">
+                                        <i class="bi bi-graph-up"></i> Estadísticas Rápidas
+                                    </h5>
+                                </div>
+                                <div class="card-body">
+                                    <div class="mb-3">
+                                        <h6>Servicios Más Populares</h6>
+                                        <div class="progress mb-2" style="height: 20px;">
+                                            <div class="progress-bar bg-primary" style="width: 40%;">Corte Básico</div>
+                                        </div>
+                                        <div class="progress mb-2" style="height: 20px;">
+                                            <div class="progress-bar bg-success" style="width: 30%;">Barba</div>
+                                        </div>
+                                        <div class="progress mb-2" style="height: 20px;">
+                                            <div class="progress-bar bg-warning" style="width: 20%;">Corte Premium</div>
+                                        </div>
+                                    </div>
+                                    
+                                    <div class="alert alert-info">
+                                        <i class="bi bi-info-circle"></i>
+                                        <strong>Próximo descanso:</strong> 12:00 PM - 1:00 PM
+                                    </div>
+                                    
+                                    <div class="alert alert-warning">
+                                        <i class="bi bi-exclamation-triangle"></i>
+                                        <strong>Cliente VIP:</strong> Juan Pérez - 2:00 PM
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Mini Calendar -->
+                    <div class="row">
+                        <div class="col-12">
+                            <div class="card">
+                                <div class="card-header">
+                                    <h5 class="mb-0">
+                                        <i class="bi bi-calendar-month"></i> Calendario Semanal
+                                    </h5>
+                                </div>
+                                <div class="card-body">
+                                    <div class="row">
+                                        <div class="col">
+                                            <div class="calendar-day text-center">
+                                                <small>Lun</small><br>
+                                                <strong>18</strong><br>
+                                                <span class="badge bg-primary appointment-badge">3 citas</span>
+                                            </div>
+                                        </div>
+                                        <div class="col">
+                                            <div class="calendar-day text-center">
+                                                <small>Mar</small><br>
+                                                <strong>19</strong><br>
+                                                <span class="badge bg-success appointment-badge">5 citas</span>
+                                            </div>
+                                        </div>
+                                        <div class="col">
+                                            <div class="calendar-day text-center">
+                                                <small>Mié</small><br>
+                                                <strong>20</strong><br>
+                                                <span class="badge bg-warning appointment-badge">4 citas</span>
+                                            </div>
+                                        </div>
+                                        <div class="col">
+                                            <div class="calendar-day today text-center">
+                                                <small>Jue</small><br>
+                                                <strong>21</strong><br>
+                                                <span class="badge bg-danger appointment-badge">8 citas</span>
+                                            </div>
+                                        </div>
+                                        <div class="col">
+                                            <div class="calendar-day text-center">
+                                                <small>Vie</small><br>
+                                                <strong>22</strong><br>
+                                                <span class="badge bg-info appointment-badge">6 citas</span>
+                                            </div>
+                                        </div>
+                                        <div class="col">
+                                            <div class="calendar-day text-center">
+                                                <small>Sáb</small><br>
+                                                <strong>23</strong><br>
+                                                <span class="badge bg-secondary appointment-badge">2 citas</span>
+                                            </div>
+                                        </div>
+                                        <div class="col">
+                                            <div class="calendar-day text-center">
+                                                <small>Dom</small><br>
+                                                <strong>24</strong><br>
+                                                <span class="badge bg-light text-dark appointment-badge">Cerrado</span>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Bootstrap JS -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>  

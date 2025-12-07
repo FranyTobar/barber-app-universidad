@@ -1,0 +1,403 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+      xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Citas de Hoy - BarberApp</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.8.1/font/bootstrap-icons.css">
+    <style>
+        .sidebar {
+            min-height: 100vh;
+            background: linear-gradient(135deg, #2c3e50 0%, #4a6491 100%);
+        }
+        .sidebar a {
+            color: white;
+            text-decoration: none;
+            padding: 12px 15px;
+            display: block;
+            border-radius: 5px;
+            margin: 5px 0;
+        }
+        .sidebar a:hover {
+            background: rgba(255, 255, 255, 0.1);
+        }
+        .sidebar a.active {
+            background: rgba(255, 255, 255, 0.2);
+        }
+        .timeline {
+            position: relative;
+            padding-left: 30px;
+        }
+        .timeline::before {
+            content: '';
+            position: absolute;
+            left: 15px;
+            top: 0;
+            bottom: 0;
+            width: 2px;
+            background-color: #dee2e6;
+        }
+        .timeline-item {
+            position: relative;
+            margin-bottom: 20px;
+        }
+        .timeline-item::before {
+            content: '';
+            position: absolute;
+            left: -23px;
+            top: 10px;
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+            background-color: #007bff;
+        }
+        .timeline-item.completed::before {
+            background-color: #28a745;
+        }
+        .timeline-item.pending::before {
+            background-color: #ffc107;
+        }
+        .timeline-item.cancelled::before {
+            background-color: #dc3545;
+        }
+    </style>
+</head>
+<body>
+    <div class="container-fluid">
+        <div class="row">
+            <!-- Sidebar -->
+            <div class="col-md-3 col-lg-2 sidebar d-md-block p-3">
+                <div class="position-sticky pt-3">
+                    <h4 class="text-white text-center mb-4">
+                        <i class="bi bi-scissors"></i> BarberApp
+                    </h4>
+                    
+                    <div class="text-center mb-4">
+                        <div class="bg-white rounded-circle d-inline-flex align-items-center justify-content-center" 
+                             style="width: 80px; height: 80px;">
+                            <i class="bi bi-person-badge text-dark" style="font-size: 2rem;"></i>
+                        </div>
+                        <h5 class="text-white mt-2" sec:authentication="name">Empleado</h5>
+                        <span class="badge bg-warning">BARBERO</span>
+                    </div>
+                    
+                    <ul class="nav flex-column">
+                        <li class="nav-item">
+                            <a class="nav-link" href="/empleado/dashboard">
+                                <i class="bi bi-speedometer2"></i> Dashboard
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" href="/citas/empleado">
+                                <i class="bi bi-calendar-week"></i> Mis Citas
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link active" href="/citas/empleado/hoy">
+                                <i class="bi bi-calendar-day"></i> Citas Hoy
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" href="/empleado/clientes">
+                                <i class="bi bi-people"></i> Mis Clientes
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" href="/empleado/perfil">
+                                <i class="bi bi-person-circle"></i> Mi Perfil
+                            </a>
+                        </li>
+                        <li class="nav-item mt-4">
+                            <a class="nav-link text-warning" href="/auth/logout">
+                                <i class="bi bi-box-arrow-right"></i> Cerrar Sesión
+                            </a>
+                        </li>
+                    </ul>
+                </div>
+            </div>
+            
+            <!-- Main Content -->
+            <div class="col-md-9 col-lg-10 ms-sm-auto px-md-4">
+                <!-- Navbar -->
+                <nav class="navbar navbar-light bg-white border-bottom shadow-sm">
+                    <div class="container-fluid">
+                        <span class="navbar-brand fw-bold text-dark">
+                            <i class="bi bi-calendar-day"></i> Citas de Hoy
+                        </span>
+                        <div class="navbar-text">
+                            <i class="bi bi-calendar"></i> 
+                            <span th:text="${#dates.format(#dates.createNow(), 'EEEE, dd MMMM yyyy')}">Jueves, 21 Noviembre 2024</span>
+                        </div>
+                    </div>
+                </nav>
+                
+                <!-- Content -->
+                <div class="container-fluid py-4">
+                    <!-- Alertas -->
+                    <div th:if="${success}" class="alert alert-success alert-dismissible fade show" role="alert">
+                        <span th:text="${success}"></span>
+                        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                    </div>
+                    
+                    <!-- Resumen del Día -->
+                    <div class="row mb-4">
+                        <div class="col-md-3">
+                            <div class="card bg-primary text-white">
+                                <div class="card-body text-center">
+                                    <h6>Total Citas</h6>
+                                    <h2 th:text="${citas != null ? citas.size() : 0}">3</h2>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-3">
+                            <div class="card bg-success text-white">
+                                <div class="card-body text-center">
+                                    <h6>Confirmadas</h6>
+                                    <h2>1</h2>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-3">
+                            <div class="card bg-warning text-white">
+                                <div class="card-body text-center">
+                                    <h6>Pendientes</h6>
+                                    <h2>1</h2>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-3">
+                            <div class="card bg-info text-white">
+                                <div class="card-body text-center">
+                                    <h6>Ingresos Estimados</h6>
+                                    <h2>$520</h2>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Timeline de Citas -->
+                    <div class="card">
+                        <div class="card-header">
+                            <h5 class="mb-0">
+                                <i class="bi bi-clock-history"></i> Agenda del Día
+                            </h5>
+                        </div>
+                        <div class="card-body">
+                            <div th:if="${citas != null and !citas.isEmpty()}">
+                                <div class="timeline">
+                                    <!-- Cita 1: Completada -->
+                                    <div class="timeline-item completed">
+                                        <div class="card mb-3">
+                                            <div class="card-body">
+                                                <div class="d-flex justify-content-between align-items-start">
+                                                    <div>
+                                                        <h6 class="card-title">
+                                                            <i class="bi bi-person-circle"></i> Juan Pérez
+                                                            <span class="badge bg-success ms-2">COMPLETADA</span>
+                                                        </h6>
+                                                        <p class="card-text mb-1">
+                                                            <i class="bi bi-scissors"></i> Corte Premium
+                                                        </p>
+                                                        <p class="card-text mb-1">
+                                                            <i class="bi bi-clock"></i> 09:00 AM - 09:45 AM (45 min)
+                                                        </p>
+                                                        <p class="card-text">
+                                                            <i class="bi bi-chat-left-text"></i> Cliente regular, prefiere corte corto por los lados
+                                                        </p>
+                                                    </div>
+                                                    <div>
+                                                        <span class="badge bg-primary">$250</span>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    
+                                    <!-- Cita 2: En Proceso -->
+                                    <div class="timeline-item pending">
+                                        <div class="card mb-3">
+                                            <div class="card-body">
+                                                <div class="d-flex justify-content-between align-items-start">
+                                                    <div>
+                                                        <h6 class="card-title">
+                                                            <i class="bi bi-person-circle"></i> María García
+                                                            <span class="badge bg-warning ms-2">PENDIENTE</span>
+                                                        </h6>
+                                                        <p class="card-text mb-1">
+                                                            <i class="bi bi-scissors"></i> Corte Básico
+                                                        </p>
+                                                        <p class="card-text mb-1">
+                                                            <i class="bi bi-clock"></i> 10:00 AM - 10:30 AM (30 min)
+                                                        </p>
+                                                        <p class="card-text">
+                                                            <i class="bi bi-telephone"></i> Tel: 555-1234
+                                                        </p>
+                                                    </div>
+                                                    <div>
+                                                        <span class="badge bg-primary">$150</span>
+                                                        <div class="mt-2">
+                                                            <a href="/citas/empleado/confirmar/2" class="btn btn-sm btn-success">
+                                                                <i class="bi bi-check-circle"></i> Confirmar
+                                                            </a>
+                                                            <a href="/citas/detalle/2" class="btn btn-sm btn-outline-info">
+                                                                <i class="bi bi-eye"></i>
+                                                            </a>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    
+                                    <!-- Cita 3: Próxima -->
+                                    <div class="timeline-item">
+                                        <div class="card mb-3">
+                                            <div class="card-body">
+                                                <div class="d-flex justify-content-between align-items-start">
+                                                    <div>
+                                                        <h6 class="card-title">
+                                                            <i class="bi bi-person-circle"></i> Carlos López
+                                                            <span class="badge bg-info ms-2">CONFIRMADA</span>
+                                                        </h6>
+                                                        <p class="card-text mb-1">
+                                                            <i class="bi bi-scissors"></i> Arreglo de Barba
+                                                        </p>
+                                                        <p class="card-text mb-1">
+                                                            <i class="bi bi-clock"></i> 11:00 AM - 11:25 AM (25 min)
+                                                        </p>
+                                                        <p class="card-text">
+                                                            <i class="bi bi-star"></i> Cliente VIP - Segunda visita
+                                                        </p>
+                                                    </div>
+                                                    <div>
+                                                        <span class="badge bg-primary">$120</span>
+                                                        <div class="mt-2">
+                                                            <a href="/citas/empleado/completar/3" class="btn btn-sm btn-primary">
+                                                                <i class="bi bi-check-all"></i> Completar
+                                                            </a>
+                                                            <a href="/citas/detalle/3" class="btn btn-sm btn-outline-info">
+                                                                <i class="bi bi-eye"></i>
+                                                            </a>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    
+                                    <!-- Cita 4: Por la Tarde -->
+                                    <div class="timeline-item">
+                                        <div class="card mb-3">
+                                            <div class="card-body">
+                                                <div class="d-flex justify-content-between align-items-start">
+                                                    <div>
+                                                        <h6 class="card-title">
+                                                            <i class="bi bi-person-circle"></i> Roberto Sánchez
+                                                            <span class="badge bg-secondary ms-2">PROGRAMADA</span>
+                                                        </h6>
+                                                        <p class="card-text mb-1">
+                                                            <i class="bi bi-scissors"></i> Corte + Barba
+                                                        </p>
+                                                        <p class="card-text mb-1">
+                                                            <i class="bi bi-clock"></i> 02:30 PM - 03:15 PM (45 min)
+                                                        </p>
+                                                        <p class="card-text">
+                                                            <i class="bi bi-calendar"></i> Primera cita - Referido por Juan Pérez
+                                                        </p>
+                                                    </div>
+                                                    <div>
+                                                        <span class="badge bg-primary">$270</span>
+                                                        <div class="mt-2">
+                                                            <a href="/citas/detalle/4" class="btn btn-sm btn-outline-info">
+                                                                <i class="bi bi-eye"></i>
+                                                            </a>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    
+                                    <!-- Descanso -->
+                                    <div class="timeline-item">
+                                        <div class="card mb-3 border-warning">
+                                            <div class="card-body">
+                                                <h6 class="card-title text-warning">
+                                                    <i class="bi bi-cup-straw"></i> Descanso / Almuerzo
+                                                </h6>
+                                                <p class="card-text mb-0">
+                                                    <i class="bi bi-clock"></i> 12:00 PM - 01:00 PM (60 min)
+                                                </p>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <div th:if="${citas == null or citas.isEmpty()}" class="text-center py-5">
+                                <i class="bi bi-calendar-heart display-1 text-muted"></i>
+                                <h4 class="mt-3">¡No tienes citas hoy!</h4>
+                                <p class="text-muted">Aprovecha para organizar tu agenda o realizar otras actividades.</p>
+                                <a href="/empleado/calendario" class="btn btn-primary">
+                                    <i class="bi bi-calendar3"></i> Ver Calendario
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Información del Día -->
+                    <div class="row mt-4">
+                        <div class="col-md-6">
+                            <div class="card">
+                                <div class="card-header bg-info text-white">
+                                    <h6 class="mb-0">
+                                        <i class="bi bi-info-circle"></i> Información del Día
+                                    </h6>
+                                </div>
+                                <div class="card-body">
+                                    <ul class="mb-0">
+                                        <li>Horario de trabajo: 9:00 AM - 7:00 PM</li>
+                                        <li>Descanso programado: 12:00 PM - 1:00 PM</li>
+                                        <li>Cliente VIP: Carlos López (11:00 AM)</li>
+                                        <li>Reunión de equipo: 5:00 PM</li>
+                                    </ul>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="card">
+                                <div class="card-header bg-success text-white">
+                                    <h6 class="mb-0">
+                                        <i class="bi bi-graph-up"></i> Estadísticas Rápidas
+                                    </h6>
+                                </div>
+                                <div class="card-body">
+                                    <div class="mb-2">
+                                        <small>Ocupación del día</small>
+                                        <div class="progress" style="height: 20px;">
+                                            <div class="progress-bar bg-success" style="width: 75%;">75%</div>
+                                        </div>
+                                    </div>
+                                    <div class="mb-2">
+                                        <small>Ingresos estimados</small>
+                                        <h5 class="mb-0">$790</h5>
+                                    </div>
+                                    <div>
+                                        <small>Promedio por cita</small>
+                                        <h5 class="mb-0">$197.50</h5>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Bootstrap JS -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html> 

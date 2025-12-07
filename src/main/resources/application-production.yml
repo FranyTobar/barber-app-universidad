@@ -1,0 +1,48 @@
+﻿# ============================================
+# PRODUCTION PROFILE - NEON.TECH
+# ============================================
+
+spring:
+  # Database - Neon.tech
+  datasource:
+    url: jdbc:postgresql://ep-crimson-tooth-ahbqkmch-pooler.c-3.us-east-1.aws.neon.tech/neondb?sslmode=require&channel_binding=require
+    username: neondb_owner
+    password: npg_C1rq6tISnsgv
+    driver-class-name: org.postgresql.Driver
+    hikari:
+      maximum-pool-size: 10
+      minimum-idle: 5
+      connection-timeout: 30000
+  
+  # JPA / Hibernate
+  jpa:
+    hibernate:
+      ddl-auto: update
+    show-sql: true
+    properties:
+      hibernate:
+        dialect: org.hibernate.dialect.PostgreSQLDialect
+        format_sql: true
+        jdbc:
+          batch_size: 20
+          lob:
+            non_contextual_creation: true
+  
+  # Security (basic)
+  security:
+    user:
+      name: admin
+      password: AdminBarber2024!
+
+# Server (override if needed)
+server:
+  port: 8080
+
+# Logging (production level)
+logging:
+  level:
+    root: WARN
+    com.barberapp: INFO
+    org.springframework: WARN
+  file:
+    name: logs/barberapp.log

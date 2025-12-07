@@ -1,0 +1,685 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Mis Preferencias - BarberApp</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.8.1/font/bootstrap-icons.css">
+    <style>
+        .sidebar {
+            min-height: 100vh;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        }
+        .sidebar a {
+            color: white;
+            text-decoration: none;
+            padding: 12px 15px;
+            display: block;
+            border-radius: 5px;
+            margin: 5px 0;
+        }
+        .sidebar a:hover {
+            background: rgba(255, 255, 255, 0.1);
+        }
+        .sidebar a.active {
+            background: rgba(255, 255, 255, 0.2);
+        }
+        .preference-card {
+            border-radius: 10px;
+            transition: all 0.3s;
+            height: 100%;
+        }
+        .preference-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 20px rgba(0,0,0,0.1);
+        }
+        .preference-icon {
+            width: 60px;
+            height: 60px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0 auto 15px;
+            font-size: 24px;
+        }
+        .toggle-switch {
+            position: relative;
+            display: inline-block;
+            width: 60px;
+            height: 30px;
+        }
+        .toggle-switch input {
+            opacity: 0;
+            width: 0;
+            height: 0;
+        }
+        .toggle-slider {
+            position: absolute;
+            cursor: pointer;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background-color: #ccc;
+            transition: .4s;
+            border-radius: 34px;
+        }
+        .toggle-slider:before {
+            position: absolute;
+            content: "";
+            height: 22px;
+            width: 22px;
+            left: 4px;
+            bottom: 4px;
+            background-color: white;
+            transition: .4s;
+            border-radius: 50%;
+        }
+        input:checked + .toggle-slider {
+            background-color: #28a745;
+        }
+        input:checked + .toggle-slider:before {
+            transform: translateX(30px);
+        }
+        .color-option {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            display: inline-block;
+            margin: 5px;
+            cursor: pointer;
+            border: 3px solid transparent;
+        }
+        .color-option.selected {
+            border-color: #007bff;
+        }
+    </style>
+</head>
+<body>
+    <div class="container-fluid">
+        <div class="row">
+            <!-- Sidebar -->
+            <div class="col-md-3 col-lg-2 sidebar d-md-block p-3">
+                <div class="position-sticky pt-3">
+                    <h4 class="text-white text-center mb-4">
+                        <i class="bi bi-scissors"></i> BarberApp
+                    </h4>
+                    
+                    <div class="text-center mb-4">
+                        <div class="bg-primary rounded-circle d-inline-flex align-items-center justify-content-center" 
+                             style="width: 80px; height: 80px;">
+                            <i class="bi bi-person-fill text-white" style="font-size: 2rem;"></i>
+                        </div>
+                        <h5 class="text-white mt-2" th:text="${cliente.nombre}">Cliente</h5>
+                        <span class="badge bg-light text-dark">CLIENTE</span>
+                    </div>
+                    
+                    <ul class="nav flex-column">
+                        <li class="nav-item">
+                            <a class="nav-link" href="/cliente/dashboard">
+                                <i class="bi bi-speedometer2"></i> Dashboard
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" href="/citas/cliente">
+                                <i class="bi bi-calendar-check"></i> Mis Citas
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" href="/citas/cliente/nueva">
+                                <i class="bi bi-plus-circle"></i> Nueva Cita
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" href="/cliente/perfil">
+                                <i class="bi bi-person-circle"></i> Mi Perfil
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" href="/cliente/historial">
+                                <i class="bi bi-clock-history"></i> Historial
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link active" href="/cliente/preferencias">
+                                <i class="bi bi-sliders"></i> Preferencias
+                            </a>
+                        </li>
+                        <li class="nav-item mt-4">
+                            <a class="nav-link text-warning" href="/auth/logout">
+                                <i class="bi bi-box-arrow-right"></i> Cerrar Sesión
+                            </a>
+                        </li>
+                    </ul>
+                </div>
+            </div>
+            
+            <!-- Main Content -->
+            <div class="col-md-9 col-lg-10 ms-sm-auto px-md-4">
+                <!-- Navbar -->
+                <nav class="navbar navbar-light bg-white border-bottom shadow-sm">
+                    <div class="container-fluid">
+                        <span class="navbar-brand fw-bold text-primary">
+                            <i class="bi bi-sliders"></i> Mis Preferencias
+                        </span>
+                        <div>
+                            <button type="button" class="btn btn-primary btn-sm" onclick="guardarPreferencias()">
+                                <i class="bi bi-save"></i> Guardar
+                            </button>
+                            <a href="/cliente/perfil" class="btn btn-outline-secondary btn-sm">
+                                <i class="bi bi-arrow-left"></i> Volver
+                            </a>
+                        </div>
+                    </div>
+                </nav>
+                
+                <!-- Content -->
+                <div class="container-fluid py-4">
+                    <!-- Alertas -->
+                    <div th:if="${error}" class="alert alert-danger alert-dismissible fade show" role="alert">
+                        <span th:text="${error}"></span>
+                        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                    </div>
+                    
+                    <div th:if="${success}" class="alert alert-success alert-dismissible fade show" role="alert">
+                        <span th:text="${success}"></span>
+                        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                    </div>
+                    
+                    <div class="alert alert-info mb-4">
+                        <h5><i class="bi bi-info-circle"></i> Personaliza tu experiencia</h5>
+                        <p class="mb-0">Configura tus preferencias para una mejor experiencia en BarberApp.</p>
+                    </div>
+                    
+                    <!-- Formulario de Preferencias -->
+                    <form id="preferenciasForm" th:action="@{/cliente/preferencias/guardar}" method="post">
+                        <!-- Sección 1: Preferencias Generales -->
+                        <div class="card mb-4">
+                            <div class="card-header bg-primary text-white">
+                                <h5 class="mb-0"><i class="bi bi-gear"></i> Preferencias Generales</h5>
+                            </div>
+                            <div class="card-body">
+                                <div class="row">
+                                    <div class="col-md-6 mb-3">
+                                        <label class="form-label">Frecuencia de Visita</label>
+                                        <select class="form-select" name="frecuenciaVisita" th:value="${cliente.frecuenciaVisita}">
+                                            <option value="">Seleccionar frecuencia...</option>
+                                            <option value="SEMANAL">Semanal (1 vez por semana)</option>
+                                            <option value="QUINCENAL">Quincenal (cada 15 días)</option>
+                                            <option value="MENSUAL">Mensual (1 vez al mes)</option>
+                                            <option value="OCASIONAL">Ocasional (sin frecuencia fija)</option>
+                                        </select>
+                                        <small class="text-muted">Nos ayuda a recomendarte horarios convenientes</small>
+                                    </div>
+                                    <div class="col-md-6 mb-3">
+                                        <label class="form-label">Tiempo Preferido</label>
+                                        <select class="form-select" name="horaPreferida">
+                                            <option value="">Cualquier hora</option>
+                                            <option value="MAÑANA">Mañana (9:00 AM - 12:00 PM)</option>
+                                            <option value="TARDE">Tarde (12:00 PM - 4:00 PM)</option>
+                                            <option value="NOCHE">Noche (4:00 PM - 7:00 PM)</option>
+                                        </select>
+                                        <small class="text-muted">Horario que prefieres para tus citas</small>
+                                    </div>
+                                    <div class="col-12 mb-3">
+                                        <label class="form-label">Preferencias de Corte</label>
+                                        <textarea class="form-control" name="preferenciasCorte" rows="3" 
+                                                  th:text="${cliente.preferenciasCorte}"
+                                                  placeholder="Ej: Prefiero corte corto por los lados, más largo arriba. Uso gel para el cabello. Alergias: ninguno."></textarea>
+                                        <small class="text-muted">Esta información ayuda a tu barbero a conocerte mejor</small>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <!-- Sección 2: Notificaciones -->
+                        <div class="card mb-4">
+                            <div class="card-header bg-success text-white">
+                                <h5 class="mb-0"><i class="bi bi-bell"></i> Notificaciones</h5>
+                            </div>
+                            <div class="card-body">
+                                <div class="row">
+                                    <div class="col-md-6 mb-3">
+                                        <div class="form-check form-switch">
+                                            <input class="form-check-input" type="checkbox" role="switch" 
+                                                   id="recordatorioEmail" name="recordatorioEmail" checked>
+                                            <label class="form-check-label" for="recorduarioEmail">
+                                                <i class="bi bi-envelope"></i> Recordatorios por Email
+                                            </label>
+                                            <small class="d-block text-muted">Recibir recordatorios 24 horas antes de cada cita</small>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-6 mb-3">
+                                        <div class="form-check form-switch">
+                                            <input class="form-check-input" type="checkbox" role="switch" 
+                                                   id="recordatorioSMS" name="recordatorioSMS">
+                                            <label class="form-check-label" for="recordatorioSMS">
+                                                <i class="bi bi-phone"></i> Recordatorios por SMS
+                                            </label>
+                                            <small class="d-block text-muted">Recibir SMS 2 horas antes de cada cita</small>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-6 mb-3">
+                                        <div class="form-check form-switch">
+                                            <input class="form-check-input" type="checkbox" role="switch" 
+                                                   id="promocionesEmail" name="promocionesEmail" checked>
+                                            <label class="form-check-label" for="promocionesEmail">
+                                                <i class="bi bi-tag"></i> Promociones por Email
+                                            </label>
+                                            <small class="d-block text-muted">Recibir ofertas y promociones especiales</small>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-6 mb-3">
+                                        <div class="form-check form-switch">
+                                            <input class="form-check-input" type="checkbox" role="switch" 
+                                                   id="noticias" name="noticias">
+                                            <label class="form-check-label" for="noticias">
+                                                <i class="bi bi-newspaper"></i> Noticias y Consejos
+                                            </label>
+                                            <small class="d-block text-muted">Recibir consejos de cuidado personal</small>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <!-- Sección 3: Preferencias de Servicio -->
+                        <div class="card mb-4">
+                            <div class="card-header bg-warning text-white">
+                                <h5 class="mb-0"><i class="bi bi-scissors"></i> Preferencias de Servicio</h5>
+                            </div>
+                            <div class="card-body">
+                                <div class="row">
+                                    <div class="col-md-6 mb-3">
+                                        <label class="form-label">Barbero Preferido</label>
+                                        <select class="form-select" name="barberoPreferido">
+                                            <option value="">Sin preferencia</option>
+                                            <option value="1">Carlos Rodríguez (Corte Clásico)</option>
+                                            <option value="2">Ana Martínez (Coloración)</option>
+                                            <option value="3">Roberto Sánchez (Tratamientos)</option>
+                                        </select>
+                                        <small class="text-muted">Te asignaremos este barbero cuando esté disponible</small>
+                                    </div>
+                                    <div class="col-md-6 mb-3">
+                                        <label class="form-label">Servicio Favorito</label>
+                                        <select class="form-select" name="servicioFavorito">
+                                            <option value="">Sin preferencia</option>
+                                            <option value="1">Corte Básico ($150, 30 min)</option>
+                                            <option value="2">Corte Premium ($250, 45 min)</option>
+                                            <option value="3">Arreglo de Barba ($120, 25 min)</option>
+                                            <option value="4">Tinte de Cabello ($300, 60 min)</option>
+                                            <option value="5">Tratamiento Facial ($180, 40 min)</option>
+                                        </select>
+                                        <small class="text-muted">Selección rápida al agendar nueva cita</small>
+                                    </div>
+                                    <div class="col-12 mb-3">
+                                        <label class="form-label">Productos Preferidos</label>
+                                        <div class="form-check">
+                                            <input class="form-check-input" type="checkbox" id="producto1" name="productos" value="GEL">
+                                            <label class="form-check-label" for="producto1">Gel para Cabello</label>
+                                        </div>
+                                        <div class="form-check">
+                                            <input class="form-check-input" type="checkbox" id="producto2" name="productos" value="CERAS">
+                                            <label class="form-check-label" for="producto2">Ceras y Pomadas</label>
+                                        </div>
+                                        <div class="form-check">
+                                            <input class="form-check-input" type="checkbox" id="producto3" name="productos" value="ACEITES">
+                                            <label class="form-check-label" for="producto3">Aceites para Barba</label>
+                                        </div>
+                                        <div class="form-check">
+                                            <input class="form-check-input" type="checkbox" id="producto4" name="productos" value="SHAMPOO">
+                                            <label class="form-check-label" for="producto4">Shampoo Especializado</label>
+                                        </div>
+                                        <small class="text-muted">Productos que prefieres usar durante tu servicio</small>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <!-- Sección 4: Apariencia -->
+                        <div class="card mb-4">
+                            <div class="card-header bg-info text-white">
+                                <h5 class="mb-0"><i class="bi bi-palette"></i> Apariencia del Sistema</h5>
+                            </div>
+                            <div class="card-body">
+                                <div class="row">
+                                    <div class="col-md-6 mb-3">
+                                        <label class="form-label">Tema de Color</label>
+                                        <div class="d-flex flex-wrap">
+                                            <div class="color-option bg-primary" onclick="seleccionarColor('primary')"></div>
+                                            <div class="color-option bg-success" onclick="seleccionarColor('success')"></div>
+                                            <div class="color-option bg-warning" onclick="seleccionarColor('warning')"></div>
+                                            <div class="color-option bg-danger" onclick="seleccionarColor('danger')"></div>
+                                            <div class="color-option bg-dark" onclick="seleccionarColor('dark')"></div>
+                                            <div class="color-option" style="background: linear-gradient(135deg, #667eea, #764ba2)" 
+                                                 onclick="seleccionarColor('gradient')"></div>
+                                        </div>
+                                        <input type="hidden" name="temaColor" id="temaColor" value="primary">
+                                        <small class="text-muted">Color principal de la interfaz</small>
+                                    </div>
+                                    <div class="col-md-6 mb-3">
+                                        <label class="form-label">Tamaño de Fuente</label>
+                                        <div class="btn-group w-100" role="group">
+                                            <input type="radio" class="btn-check" name="tamanoFuente" id="pequeno" value="pequeno" autocomplete="off">
+                                            <label class="btn btn-outline-secondary" for="pequeno">Pequeño</label>
+                                            
+                                            <input type="radio" class="btn-check" name="tamanoFuente" id="normal" value="normal" autocomplete="off" checked>
+                                            <label class="btn btn-outline-secondary" for="normal">Normal</label>
+                                            
+                                            <input type="radio" class="btn-check" name="tamanoFuente" id="grande" value="grande" autocomplete="off">
+                                            <label class="btn btn-outline-secondary" for="grande">Grande</label>
+                                        </div>
+                                        <small class="text-muted">Tamaño del texto en la aplicación</small>
+                                    </div>
+                                    <div class="col-12 mb-3">
+                                        <div class="form-check form-switch">
+                                            <input class="form-check-input" type="checkbox" role="switch" 
+                                                   id="modoOscuro" name="modoOscuro">
+                                            <label class="form-check-label" for="modoOscuro">
+                                                <i class="bi bi-moon"></i> Modo Oscuro
+                                            </label>
+                                            <small class="d-block text-muted">Interfaz con colores oscuros (recomendado para uso nocturno)</small>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <!-- Sección 5: Privacidad -->
+                        <div class="card mb-4">
+                            <div class="card-header bg-dark text-white">
+                                <h5 class="mb-0"><i class="bi bi-shield-lock"></i> Privacidad</h5>
+                            </div>
+                            <div class="card-body">
+                                <div class="row">
+                                    <div class="col-md-6 mb-3">
+                                        <div class="form-check form-switch">
+                                            <input class="form-check-input" type="checkbox" role="switch" 
+                                                   id="perfilPublico" name="perfilPublico">
+                                            <label class="form-check-label" for="perfilPublico">
+                                                Perfil Público
+                                            </label>
+                                            <small class="d-block text-muted">Permitir que los barberos vean tu historial de preferencias</small>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-6 mb-3">
+                                        <div class="form-check form-switch">
+                                            <input class="form-check-input" type="checkbox" role="switch" 
+                                                   id="compartirDatos" name="compartirDatos" checked>
+                                            <label class="form-check-label" for="compartirDatos">
+                                                Compartir Datos Anónimos
+                                            </label>
+                                            <small class="d-block text-muted">Compartir datos anónimos para mejorar el servicio</small>
+                                        </div>
+                                    </div>
+                                    <div class="col-12">
+                                        <div class="alert alert-warning">
+                                            <h6><i class="bi bi-exclamation-triangle"></i> Información Importante</h6>
+                                            <small>
+                                                Tus preferencias se guardan de forma segura en nuestro servidor.
+                                                Nunca compartiremos tu información personal con terceros sin tu consentimiento.
+                                                Para más información, consulta nuestra <a href="#">Política de Privacidad</a>.
+                                            </small>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <!-- Botones de Acción -->
+                        <div class="card">
+                            <div class="card-body">
+                                <div class="d-flex justify-content-between">
+                                    <button type="button" class="btn btn-secondary" onclick="restablecerPreferencias()">
+                                        <i class="bi bi-arrow-counterclockwise"></i> Restablecer
+                                    </button>
+                                    <div class="btn-group">
+                                        <a href="/cliente/perfil" class="btn btn-outline-secondary">
+                                            <i class="bi bi-x-circle"></i> Cancelar
+                                        </a>
+                                        <button type="submit" class="btn btn-primary">
+                                            <i class="bi bi-save"></i> Guardar Preferencias
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </form>
+                    
+                    <!-- Información Adicional -->
+                    <div class="mt-4">
+                        <div class="alert alert-info">
+                            <h6><i class="bi bi-lightbulb"></i> Consejos</h6>
+                            <ul class="mb-0">
+                                <li>Configurar tus preferencias ayuda a personalizar tu experiencia</li>
+                                <li>Los recordatorios te ayudarán a no olvidar tus citas</li>
+                                <li>Indicar tu barbero preferido asegura consistencia en el servicio</li>
+                                <li>Puedes cambiar estas preferencias en cualquier momento</li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Modal de Confirmación -->
+    <div class="modal fade" id="confirmacionModal" tabindex="-1">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header bg-success text-white">
+                    <h5 class="modal-title">
+                        <i class="bi bi-check-circle"></i> Preferencias Guardadas
+                    </h5>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                    <p>¡Tus preferencias han sido guardadas exitosamente!</p>
+                    <p class="text-muted">Los cambios se aplicarán inmediatamente.</p>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cerrar</button>
+                    <a href="/cliente/perfil" class="btn btn-primary">Volver al Perfil</a>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Bootstrap JS -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"></script>
+    
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            console.log("=== ⚙️ PREFERENCIAS CARGADAS ===");
+            
+            // Cargar preferencias guardadas si existen
+            cargarPreferenciasGuardadas();
+            
+            // Seleccionar color por defecto
+            seleccionarColor('primary');
+            
+            // Configurar eventos
+            const modales = new bootstrap.Modal(document.getElementById('confirmacionModal'));
+            
+            // Formulario submit
+            document.getElementById('preferenciasForm').addEventListener('submit', function(e) {
+                e.preventDefault();
+                
+                // Validaciones básicas
+                const frecuenciaVisita = this.querySelector('[name="frecuenciaVisita"]').value;
+                const preferenciasCorte = this.querySelector('[name="preferenciasCorte"]').value;
+                
+                // Mostrar confirmación
+                if (guardarPreferencias()) {
+                    modales.show();
+                }
+                
+                // Enviar formulario después de mostrar modal
+                setTimeout(() => {
+                    this.submit();
+                }, 2000);
+            });
+            
+            // Cargar valores del cliente desde Thymeleaf
+            const clienteFrecuencia = document.querySelector('[name="frecuenciaVisita"]').getAttribute('th:value');
+            if (clienteFrecuencia && clienteFrecuencia !== '${cliente.frecuenciaVisita}') {
+                document.querySelector('[name="frecuenciaVisita"]').value = clienteFrecuencia;
+            }
+            
+            const clientePreferencias = document.querySelector('[name="preferenciasCorte"]').getAttribute('th:text');
+            if (clientePreferencias && clientePreferencias !== '${cliente.preferenciasCorte}') {
+                document.querySelector('[name="preferenciasCorte"]').value = clientePreferencias;
+            }
+        });
+        
+        function cargarPreferenciasGuardadas() {
+            // Intentar cargar desde localStorage
+            const preferenciasGuardadas = localStorage.getItem('barberapp_preferencias');
+            if (preferenciasGuardadas) {
+                try {
+                    const preferencias = JSON.parse(preferenciasGuardadas);
+                    
+                    // Aplicar preferencias
+                    if (preferencias.temaColor) {
+                        seleccionarColor(preferencias.temaColor);
+                    }
+                    
+                    if (preferencias.tamanoFuente) {
+                        document.querySelector(`[name="tamanoFuente"][value="${preferencias.tamanoFuente}"]`).checked = true;
+                        aplicarTamanoFuente(preferencias.tamanoFuente);
+                    }
+                    
+                    if (preferencias.modoOscuro !== undefined) {
+                        document.getElementById('modoOscuro').checked = preferencias.modoOscuro;
+                        if (preferencias.modoOscuro) {
+                            document.body.classList.add('bg-dark', 'text-light');
+                        }
+                    }
+                    
+                    console.log("✅ Preferencias cargadas desde localStorage");
+                } catch (e) {
+                    console.error("Error al cargar preferencias:", e);
+                }
+            }
+        }
+        
+        function guardarPreferencias() {
+            // Recopilar todas las preferencias
+            const preferencias = {
+                frecuenciaVisita: document.querySelector('[name="frecuenciaVisita"]').value,
+                horaPreferida: document.querySelector('[name="horaPreferida"]').value,
+                preferenciasCorte: document.querySelector('[name="preferenciasCorte"]').value,
+                recordatorioEmail: document.getElementById('recordatorioEmail').checked,
+                recordatorioSMS: document.getElementById('recordatorioSMS').checked,
+                promocionesEmail: document.getElementById('promocionesEmail').checked,
+                noticias: document.getElementById('noticias').checked,
+                barberoPreferido: document.querySelector('[name="barberoPreferido"]').value,
+                servicioFavorito: document.querySelector('[name="servicioFavorito"]').value,
+                temaColor: document.getElementById('temaColor').value,
+                tamanoFuente: document.querySelector('[name="tamanoFuente"]:checked')?.value || 'normal',
+                modoOscuro: document.getElementById('modoOscuro').checked,
+                perfilPublico: document.getElementById('perfilPublico').checked,
+                compartirDatos: document.getElementById('compartirDatos').checked
+            };
+            
+            // Guardar en localStorage
+            localStorage.setItem('barberapp_preferencias', JSON.stringify(preferencias));
+            
+            // Aplicar cambios visuales inmediatamente
+            aplicarPreferenciasVisuales(preferencias);
+            
+            console.log("💾 Preferencias guardadas:", preferencias);
+            return true;
+        }
+        
+        function aplicarPreferenciasVisuales(preferencias) {
+            // Aplicar tema de color
+            document.documentElement.style.setProperty('--color-principal', getColorHex(preferencias.temaColor));
+            
+            // Aplicar tamaño de fuente
+            aplicarTamanoFuente(preferencias.tamanoFuente);
+            
+            // Aplicar modo oscuro
+            if (preferencias.modoOscuro) {
+                document.body.classList.add('bg-dark', 'text-light');
+                document.querySelectorAll('.card').forEach(card => {
+                    card.classList.add('bg-dark');
+                });
+            } else {
+                document.body.classList.remove('bg-dark', 'text-light');
+                document.querySelectorAll('.card').forEach(card => {
+                    card.classList.remove('bg-dark');
+                });
+            }
+        }
+        
+        function aplicarTamanoFuente(tamano) {
+            let tamanoBase;
+            switch(tamano) {
+                case 'pequeno': tamanoBase = '0.9rem'; break;
+                case 'normal': tamanoBase = '1rem'; break;
+                case 'grande': tamanoBase = '1.1rem'; break;
+                default: tamanoBase = '1rem';
+            }
+            document.documentElement.style.fontSize = tamanoBase;
+        }
+        
+        function getColorHex(colorName) {
+            const colores = {
+                'primary': '#007bff',
+                'success': '#28a745',
+                'warning': '#ffc107',
+                'danger': '#dc3545',
+                'dark': '#343a40',
+                'gradient': 'linear-gradient(135deg, #667eea, #764ba2)'
+            };
+            return colores[colorName] || '#007bff';
+        }
+        
+        function seleccionarColor(color) {
+            // Remover selección anterior
+            document.querySelectorAll('.color-option').forEach(option => {
+                option.classList.remove('selected');
+            });
+            
+            // Seleccionar nuevo color
+            const colorOption = document.querySelector(`.color-option.bg-${color}`);
+            if (colorOption) {
+                colorOption.classList.add('selected');
+            } else if (color === 'gradient') {
+                document.querySelector('.color-option[style*="gradient"]').classList.add('selected');
+            }
+            
+            // Guardar selección
+            document.getElementById('temaColor').value = color;
+            
+            // Aplicar inmediatamente
+            document.documentElement.style.setProperty('--color-principal', getColorHex(color));
+            
+            console.log("🎨 Color seleccionado:", color);
+        }
+        
+        function restablecerPreferencias() {
+            if (confirm('¿Estás seguro de que deseas restablecer todas las preferencias a los valores predeterminados?')) {
+                // Restablecer formulario
+                document.getElementById('preferenciasForm').reset();
+                
+                // Restablecer localStorage
+                localStorage.removeItem('barberapp_preferencias');
+                
+                // Restablecer valores por defecto
+                seleccionarColor('primary');
+                document.querySelector('[name="tamanoFuente"][value="normal"]').checked = true;
+                aplicarTamanoFuente('normal');
+                document.getElementById('modoOscuro').checked = false;
+                document.body.classList.remove('bg-dark', 'text-light');
+                
+                console.log("🔄 Preferencias restablecidas");
+                alert('Preferencias restablecidas a los valores predeterminados.');
+            }
+        }
+    </script>
+</body>
+</html>  

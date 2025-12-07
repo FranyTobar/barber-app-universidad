@@ -1,0 +1,345 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+      xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Mis Citas - BarberApp</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.8.1/font/bootstrap-icons.css">
+    <style>
+        .sidebar {
+            min-height: 100vh;
+            background: linear-gradient(135deg, #2c3e50 0%, #4a6491 100%);
+        }
+        .sidebar a {
+            color: white;
+            text-decoration: none;
+            padding: 12px 15px;
+            display: block;
+            border-radius: 5px;
+            margin: 5px 0;
+        }
+        .sidebar a:hover {
+            background: rgba(255, 255, 255, 0.1);
+        }
+        .sidebar a.active {
+            background: rgba(255, 255, 255, 0.2);
+        }
+        .status-badge {
+            font-size: 0.8rem;
+            padding: 5px 10px;
+        }
+        .calendar-day {
+            width: 40px;
+            height: 40px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 50%;
+            cursor: pointer;
+        }
+        .calendar-day.active {
+            background-color: #007bff;
+            color: white;
+        }
+    </style>
+</head>
+<body>
+    <div class="container-fluid">
+        <div class="row">
+            <!-- Sidebar -->
+            <div class="col-md-3 col-lg-2 sidebar d-md-block p-3">
+                <div class="position-sticky pt-3">
+                    <h4 class="text-white text-center mb-4">
+                        <i class="bi bi-scissors"></i> BarberApp
+                    </h4>
+                    
+                    <div class="text-center mb-4">
+                        <div class="bg-white rounded-circle d-inline-flex align-items-center justify-content-center" 
+                             style="width: 80px; height: 80px;">
+                            <i class="bi bi-person-badge text-dark" style="font-size: 2rem;"></i>
+                        </div>
+                        <h5 class="text-white mt-2" sec:authentication="name">Empleado</h5>
+                        <span class="badge bg-warning">BARBERO</span>
+                    </div>
+                    
+                    <ul class="nav flex-column">
+                        <li class="nav-item">
+                            <a class="nav-link" href="/empleado/dashboard">
+                                <i class="bi bi-speedometer2"></i> Dashboard
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link active" href="/citas/empleado">
+                                <i class="bi bi-calendar-week"></i> Mis Citas
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" href="/citas/empleado/hoy">
+                                <i class="bi bi-calendar-day"></i> Citas Hoy
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" href="/empleado/clientes">
+                                <i class="bi bi-people"></i> Mis Clientes
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" href="/empleado/perfil">
+                                <i class="bi bi-person-circle"></i> Mi Perfil
+                            </a>
+                        </li>
+                        <li class="nav-item mt-4">
+                            <a class="nav-link text-warning" href="/auth/logout">
+                                <i class="bi bi-box-arrow-right"></i> Cerrar Sesión
+                            </a>
+                        </li>
+                    </ul>
+                </div>
+            </div>
+            
+            <!-- Main Content -->
+            <div class="col-md-9 col-lg-10 ms-sm-auto px-md-4">
+                <!-- Navbar -->
+                <nav class="navbar navbar-light bg-white border-bottom shadow-sm">
+                    <div class="container-fluid">
+                        <span class="navbar-brand fw-bold text-dark">
+                            <i class="bi bi-calendar-week"></i> Mis Citas
+                        </span>
+                        <div class="btn-group">
+                            <a href="/citas/empleado/hoy" class="btn btn-outline-primary">
+                                <i class="bi bi-calendar-day"></i> Ver Hoy
+                            </a>
+                            <a href="/empleado/calendario" class="btn btn-outline-success">
+                                <i class="bi bi-calendar3"></i> Calendario
+                            </a>
+                        </div>
+                    </div>
+                </nav>
+                
+                <!-- Content -->
+                <div class="container-fluid py-4">
+                    <!-- Alertas -->
+                    <div th:if="${success}" class="alert alert-success alert-dismissible fade show" role="alert">
+                        <span th:text="${success}"></span>
+                        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                    </div>
+                    
+                    <!-- Información de Diagnóstico -->
+                    <div th:if="${diagnostico}" class="alert alert-info">
+                        <h6><i class="bi bi-info-circle"></i> Diagnóstico:</h6>
+                        <p>Total citas en BD: <span th:text="${totalCitasEnBD}">0</span></p>
+                        <p>Citas para mostrar: <span th:text="${citas != null ? citas.size() : 0}">0</span></p>
+                        <p>Empleado: <span th:text="${empleado != null ? empleado.nombre : 'No identificado'}"></span></p>
+                    </div>
+                    
+                    <!-- Mini Calendario (actualizado a Diciembre 2025) -->
+                    <div class="card mb-4">
+                        <div class="card-body">
+                            <h5 class="card-title mb-3">
+                                <i class="bi bi-calendar-month"></i> Calendario de Citas - Diciembre 2025
+                            </h5>
+                            <div class="d-flex justify-content-between align-items-center mb-3">
+                                <h6 class="mb-0">
+                                    <span th:text="${#temporals.format(#temporals.createNow(), 'MMMM yyyy')}">Diciembre 2025</span>
+                                </h6>
+                                <div>
+                                    <a th:href="@{/citas/empleado?mes=anterior}" class="btn btn-sm btn-outline-secondary">
+                                        <i class="bi bi-chevron-left"></i>
+                                    </a>
+                                    <a th:href="@{/citas/empleado?mes=siguiente}" class="btn btn-sm btn-outline-secondary">
+                                        <i class="bi bi-chevron-right"></i>
+                                    </a>
+                                </div>
+                            </div>
+                            <div class="d-flex justify-content-between mb-2">
+                                <div class="calendar-day">L</div>
+                                <div class="calendar-day">M</div>
+                                <div class="calendar-day">M</div>
+                                <div class="calendar-day">J</div>
+                                <div class="calendar-day">V</div>
+                                <div class="calendar-day">S</div>
+                                <div class="calendar-day">D</div>
+                            </div>
+                            <!-- Días del mes (simplificado) -->
+                            <div class="row">
+                                <div class="col">
+                                    <div th:class="${#temporals.day(#temporals.createNow()) == 6} ? 'calendar-day active' : 'calendar-day'">
+                                        6
+                                    </div>
+                                    <small class="text-center d-block">Hoy</small>
+                                </div>
+                                <div class="col">
+                                    <div th:class="${#temporals.day(#temporals.createNow()) == 7} ? 'calendar-day active' : 'calendar-day'">
+                                        7
+                                    </div>
+                                    <small class="text-center d-block">Mañana</small>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Lista de Citas REALES -->
+                    <div class="card">
+                        <div class="card-header">
+                            <h5 class="mb-0">
+                                <i class="bi bi-list-task"></i> Todas mis Citas
+                                <small class="text-muted">(Datos reales de la base de datos)</small>
+                            </h5>
+                        </div>
+                        <div class="card-body">
+                            <!-- Filtros -->
+                            <div class="row mb-4">
+                                <div class="col-md-8">
+                                    <div class="btn-group" role="group">
+                                        <a href="/citas/empleado" class="btn btn-outline-primary">Todas</a>
+                                        <a href="/citas/empleado?estado=PENDIENTE" class="btn btn-outline-warning">Pendientes</a>
+                                        <a href="/citas/empleado?estado=CONFIRMADA" class="btn btn-outline-success">Confirmadas</a>
+                                        <a href="/citas/empleado?estado=COMPLETADA" class="btn btn-outline-info">Completadas</a>
+                                    </div>
+                                </div>
+                                <div class="col-md-4 text-end">
+                                    <h6>Total: <span th:text="${citas != null ? citas.size() : 0}">0</span> citas</h6>
+                                </div>
+                            </div>
+                            
+                            <!-- TABLA CON DATOS REALES DE LA BD -->
+                            <div th:if="${citas != null and !citas.isEmpty()}">
+                                <div class="table-responsive">
+                                    <table class="table table-hover">
+                                        <thead>
+                                            <tr>
+                                                <th>ID</th>
+                                                <th>Fecha y Hora</th>
+                                                <th>Cliente</th>
+                                                <th>Servicio</th>
+                                                <th>Duración</th>
+                                                <th>Estado</th>
+                                                <th>¿Futura?</th>
+                                                <th>Acciones</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            <!-- DATOS REALES - Thymeleaf loop -->
+                                            <tr th:each="cita : ${citas}">
+                                                <td th:text="${cita.id}">#</td>
+                                                <td>
+                                                    <span th:text="${#temporals.format(cita.fechaHora, 'dd/MM/yyyy')}">Fecha</span><br>
+                                                    <small class="text-muted" th:text="${#temporals.format(cita.fechaHora, 'HH:mm')}">Hora</small>
+                                                </td>
+                                                <td>
+                                                    <strong th:text="${cita.cliente.nombre}">Cliente</strong><br>
+                                                    <small class="text-muted" th:text="${cita.cliente.email}">Email</small>
+                                                </td>
+                                                <td>
+                                                    <span th:text="${cita.servicio.nombre}">Servicio</span><br>
+                                                    <small class="text-muted" th:text="'$' + ${#numbers.formatDecimal(cita.servicio.precio, 1, 2)}">Precio</small>
+                                                </td>
+                                                <td th:text="${cita.servicio.duracionMinutos} + ' min'">Duración</td>
+                                                <td>
+                                                    <span th:class="${cita.estado.name() == 'PENDIENTE'} ? 'badge bg-warning status-badge' : 
+                                                                   ${cita.estado.name() == 'CONFIRMADA'} ? 'badge bg-success status-badge' :
+                                                                   ${cita.estado.name() == 'CANCELADA'} ? 'badge bg-danger status-badge' :
+                                                                   ${cita.estado.name() == 'COMPLETADA'} ? 'badge bg-info status-badge' : 'badge bg-secondary status-badge'"
+                                                          th:text="${cita.estado}">Estado</span>
+                                                </td>
+                                                <td>
+                                                    <span th:if="${#temporals.isAfter(cita.fechaHora, #temporals.createNow())}"
+                                                          class="badge bg-success">✅ Futura</span>
+                                                    <span th:unless="${#temporals.isAfter(cita.fechaHora, #temporals.createNow())}"
+                                                          class="badge bg-secondary">⏳ Pasada</span>
+                                                </td>
+                                                <td>
+                                                    <a th:href="@{/citas/detalle/{id}(id=${cita.id})}" 
+                                                       class="btn btn-sm btn-outline-info" title="Ver detalle">
+                                                        <i class="bi bi-eye"></i>
+                                                    </a>
+                                                    <a th:href="@{/citas/empleado/confirmar/{id}(id=${cita.id})}" 
+                                                       class="btn btn-sm btn-outline-success" 
+                                                       th:if="${cita.estado.name() == 'PENDIENTE'}" title="Confirmar cita">
+                                                        <i class="bi bi-check-circle"></i>
+                                                    </a>
+                                                    <a th:href="@{/citas/empleado/completar/{id}(id=${cita.id})}" 
+                                                       class="btn btn-sm btn-outline-primary"
+                                                       th:if="${cita.estado.name() == 'CONFIRMADA'}" title="Marcar como completada">
+                                                        <i class="bi bi-check-all"></i>
+                                                    </a>
+                                                    <button class="btn btn-sm btn-outline-secondary" disabled
+                                                            th:if="${cita.estado.name() != 'PENDIENTE' and cita.estado.name() != 'CONFIRMADA'}">
+                                                        <span th:text="${cita.estado}">Estado</span>
+                                                    </button>
+                                                </td>
+                                            </tr>
+                                        </tbody>
+                                    </table>
+                                </div>
+                            </div>
+                            
+                            <!-- Mensaje cuando no hay citas -->
+                            <div th:if="${citas == null or citas.isEmpty()}" class="text-center py-5">
+                                <i class="bi bi-calendar-x display-1 text-muted"></i>
+                                <h4 class="mt-3">No tienes citas programadas</h4>
+                                <p class="text-muted">Cuando tengas citas, aparecerán aquí.</p>
+                                <div class="alert alert-warning mt-3">
+                                    <h6><i class="bi bi-exclamation-triangle"></i> Diagnóstico:</h6>
+                                    <p>Si acabas de crear una cita y no aparece aquí, puede ser por:</p>
+                                    <ul class="text-start">
+                                        <li>La cita está en una fecha muy futura</li>
+                                        <li>La cita está asignada a otro barbero</li>
+                                        <li>Hay un filtro activo que la oculta</li>
+                                    </ul>
+                                    <p class="mb-0">Revisa la base de datos para verificar que la cita existe.</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Estadísticas REALES -->
+                    <div class="row mt-4">
+                        <div class="col-md-4">
+                            <div class="card bg-primary text-white">
+                                <div class="card-body">
+                                    <h6><i class="bi bi-calendar-day"></i> Citas Hoy</h6>
+                                    <h2 th:text="${citasHoy != null ? citasHoy.size() : 0}">0</h2>
+                                    <a href="/citas/empleado/hoy" class="text-white">
+                                        Ver detalles <i class="bi bi-arrow-right"></i>
+                                    </a>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-4">
+                            <div class="card bg-success text-white">
+                                <div class="card-body">
+                                    <h6><i class="bi bi-check-circle"></i> Pendientes</h6>
+                                    <h2 th:text="${citas != null ? #lists.size(#lists.select(${citas}, ${cita.estado.name() == 'PENDIENTE'})) : 0}">0</h2>
+                                    <small>Esperando confirmación</small>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-4">
+                            <div class="card bg-info text-white">
+                                <div class="card-body">
+                                    <h6><i class="bi bi-check-all"></i> Próximas 7 días</h6>
+                                    <h2 th:text="${citas != null ? #lists.size(#lists.select(${citas}, ${#temporals.isAfter(cita.fechaHora, #temporals.createNow()) and #temporals.daysBetween(#temporals.createNow(), cita.fechaHora) <= 7})) : 0}">0</h2>
+                                    <small>Citas futuras próximas</small>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Bootstrap JS -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"></script>
+    
+    <!-- Script para diagnóstico -->
+    <script>
+        console.log("=== 📊 DIAGNÓSTICO CLIENTE ===");
+        console.log("Fecha actual:", new Date().toLocaleString());
+        console.log("Citas cargadas:", document.querySelectorAll('tbody tr').length - 1); // Resta la fila de ejemplo
+    </script>
+</body>
+</html> 

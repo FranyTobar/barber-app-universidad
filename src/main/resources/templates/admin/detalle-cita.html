@@ -1,0 +1,446 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+      xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Detalle de Cita - BarberApp</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.8.1/font/bootstrap-icons.css">
+    <style>
+        .sidebar {
+            min-height: 100vh;
+            background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%);
+        }
+        .sidebar a {
+            color: white;
+            text-decoration: none;
+            padding: 12px 15px;
+            display: block;
+            border-radius: 5px;
+            margin: 5px 0;
+        }
+        .sidebar a:hover {
+            background: rgba(255, 255, 255, 0.1);
+        }
+        .sidebar a.active {
+            background: rgba(255, 255, 255, 0.2);
+        }
+        .info-card {
+            border-left: 4px solid #007bff;
+        }
+        .info-card.warning {
+            border-left-color: #ffc107;
+        }
+        .info-card.success {
+            border-left-color: #28a745;
+        }
+        .info-card.danger {
+            border-left-color: #dc3545;
+        }
+    </style>
+</head>
+<body>
+    <div class="container-fluid">
+        <div class="row">
+            <!-- Sidebar -->
+            <div class="col-md-3 col-lg-2 sidebar d-md-block p-3">
+                <div class="position-sticky pt-3">
+                    <h4 class="text-white text-center mb-4">
+                        <i class="bi bi-scissors"></i> BarberApp
+                    </h4>
+                    
+                    <div class="text-center mb-4">
+                        <div class="bg-white rounded-circle d-inline-flex align-items-center justify-content-center" 
+                             style="width: 80px; height: 80px;">
+                            <i class="bi bi-shield-check text-danger" style="font-size: 2rem;"></i>
+                        </div>
+                        <h5 class="text-white mt-2" sec:authentication="name">Administrador</h5>
+                        <span class="badge bg-danger">ADMIN</span>
+                    </div>
+                    
+                    <ul class="nav flex-column">
+                        <li class="nav-item">
+                            <a class="nav-link" href="/admin/dashboard">
+                                <i class="bi bi-speedometer2"></i> Dashboard
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" href="/citas/admin">
+                                <i class="bi bi-calendar-week"></i> Todas las Citas
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" href="/admin/empleados">
+                                <i class="bi bi-people"></i> Empleados
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" href="/admin/clientes">
+                                <i class="bi bi-person-badge"></i> Clientes
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" href="/admin/servicios">
+                                <i class="bi bi-scissors"></i> Servicios
+                            </a>
+                        </li>
+                        <li class="nav-item mt-4">
+                            <a class="nav-link text-warning" href="/auth/logout">
+                                <i class="bi bi-box-arrow-right"></i> Cerrar Sesión
+                            </a>
+                        </li>
+                    </ul>
+                </div>
+            </div>
+            
+            <!-- Main Content -->
+            <div class="col-md-9 col-lg-10 ms-sm-auto px-md-4">
+                <!-- Navbar -->
+                <nav class="navbar navbar-light bg-white border-bottom shadow-sm">
+                    <div class="container-fluid">
+                        <span class="navbar-brand fw-bold text-dark">
+                            <i class="bi bi-eye"></i> Detalle de Cita
+                        </span>
+                        <div>
+                            <a href="/citas/admin" class="btn btn-outline-secondary">
+                                <i class="bi bi-arrow-left"></i> Volver
+                            </a>
+                            <button class="btn btn-outline-primary">
+                                <i class="bi bi-printer"></i> Imprimir
+                            </button>
+                        </div>
+                    </div>
+                </nav>
+                
+                <!-- Content -->
+                <div class="container-fluid py-4">
+                    <!-- Información Principal -->
+                    <div class="row mb-4">
+                        <div class="col-md-8">
+                            <div class="card">
+                                <div class="card-header bg-primary text-white d-flex justify-content-between align-items-center">
+                                    <h5 class="mb-0">
+                                        <i class="bi bi-calendar-check"></i> Cita #00123
+                                    </h5>
+                                    <span class="badge bg-warning fs-6">PENDIENTE</span>
+                                </div>
+                                <div class="card-body">
+                                    <div class="row">
+                                        <div class="col-md-6">
+                                            <h6><i class="bi bi-clock"></i> Fecha y Hora</h6>
+                                            <p class="fs-5">21 Noviembre 2024 - 10:00 AM</p>
+                                            
+                                            <h6><i class="bi bi-scissors"></i> Servicio</h6>
+                                            <p class="fs-5">Corte Premium</p>
+                                            <p class="text-muted">Corte + lavado + peinado + acabado profesional</p>
+                                        </div>
+                                        <div class="col-md-6">
+                                            <h6><i class="bi bi-cash"></i> Información de Pago</h6>
+                                            <p class="fs-5">$250.00</p>
+                                            <p class="text-muted">Pendiente de pago</p>
+                                            
+                                            <h6><i class="bi bi-clock-history"></i> Duración</h6>
+                                            <p class="fs-5">45 minutos</p>
+                                        </div>
+                                    </div>
+                                    
+                                    <div class="mt-4">
+                                        <h6><i class="bi bi-chat-left-text"></i> Notas Adicionales</h6>
+                                        <p class="text-muted">Cliente prefiere corte corto por los lados y un poco más largo en la parte superior. Segunda visita.</p>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="col-md-4">
+                            <div class="card mb-3">
+                                <div class="card-header">
+                                    <h6 class="mb-0">
+                                        <i class="bi bi-lightning-charge"></i> Acciones Rápidas
+                                    </h6>
+                                </div>
+                                <div class="card-body">
+                                    <div class="d-grid gap-2">
+                                        <button class="btn btn-success">
+                                            <i class="bi bi-check-circle"></i> Confirmar Cita
+                                        </button>
+                                        <button class="btn btn-primary">
+                                            <i class="bi bi-check-all"></i> Marcar como Completada
+                                        </button>
+                                        <button class="btn btn-warning" data-bs-toggle="modal" data-bs-target="#reagendarModal">
+                                            <i class="bi bi-calendar-plus"></i> Reagendar
+                                        </button>
+                                        <button class="btn btn-danger" data-bs-toggle="modal" data-bs-target="#cancelarModal">
+                                            <i class="bi bi-x-circle"></i> Cancelar Cita
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <div class="card">
+                                <div class="card-header">
+                                    <h6 class="mb-0">
+                                        <i class="bi bi-info-circle"></i> Información del Sistema
+                                    </h6>
+                                </div>
+                                <div class="card-body">
+                                    <ul class="list-unstyled small">
+                                        <li><i class="bi bi-calendar-plus"></i> Creada: 18/11/2024 14:30</li>
+                                        <li><i class="bi bi-person-plus"></i> Creada por: Sistema Web</li>
+                                        <li><i class="bi bi-clock-history"></i> Última actualización: Hoy 09:00</li>
+                                        <li><i class="bi bi-bell"></i> Recordatorio enviado: Sí</li>
+                                        <li><i class="bi bi-envelope"></i> Email confirmación: Enviado</li>
+                                    </ul>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Información de Personas -->
+                    <div class="row mb-4">
+                        <div class="col-md-6">
+                            <div class="card info-card">
+                                <div class="card-header">
+                                    <h6 class="mb-0">
+                                        <i class="bi bi-person-circle"></i> Información del Cliente
+                                    </h6>
+                                </div>
+                                <div class="card-body">
+                                    <div class="d-flex align-items-center mb-3">
+                                        <div class="rounded-circle bg-primary d-flex align-items-center justify-content-center me-3" 
+                                             style="width: 60px; height: 60px;">
+                                            <i class="bi bi-person-fill text-white" style="font-size: 1.5rem;"></i>
+                                        </div>
+                                        <div>
+                                            <h5 class="mb-0">Juan Pérez</h5>
+                                            <p class="text-muted mb-0">Cliente desde: 15/10/2024</p>
+                                        </div>
+                                    </div>
+                                    
+                                    <div class="row">
+                                        <div class="col-6">
+                                            <small class="text-muted">Email</small>
+                                            <p>juan.perez@email.com</p>
+                                        </div>
+                                        <div class="col-6">
+                                            <small class="text-muted">Teléfono</small>
+                                            <p>555-1234</p>
+                                        </div>
+                                        <div class="col-6">
+                                            <small class="text-muted">Citas Totales</small>
+                                            <p>3</p>
+                                        </div>
+                                        <div class="col-6">
+                                            <small class="text-muted">Última Visita</small>
+                                            <p>14/11/2024</p>
+                                        </div>
+                                    </div>
+                                    
+                                    <div class="mt-3">
+                                        <a href="/admin/clientes/ver/1" class="btn btn-sm btn-outline-primary">
+                                            <i class="bi bi-person-lines-fill"></i> Ver Perfil Completo
+                                        </a>
+                                        <a href="tel:5551234" class="btn btn-sm btn-outline-success">
+                                            <i class="bi bi-telephone"></i> Llamar
+                                        </a>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="col-md-6">
+                            <div class="card info-card success">
+                                <div class="card-header">
+                                    <h6 class="mb-0">
+                                        <i class="bi bi-person-badge"></i> Información del Empleado
+                                    </h6>
+                                </div>
+                                <div class="card-body">
+                                    <div class="d-flex align-items-center mb-3">
+                                        <div class="rounded-circle bg-success d-flex align-items-center justify-content-center me-3" 
+                                             style="width: 60px; height: 60px;">
+                                            <i class="bi bi-person-badge text-white" style="font-size: 1.5rem;"></i>
+                                        </div>
+                                        <div>
+                                            <h5 class="mb-0">Carlos Rodríguez</h5>
+                                            <p class="text-muted mb-0">Barbero Senior</p>
+                                        </div>
+                                    </div>
+                                    
+                                    <div class="row">
+                                        <div class="col-6">
+                                            <small class="text-muted">Especialidad</small>
+                                            <p>Corte y Barba</p>
+                                        </div>
+                                        <div class="col-6">
+                                            <small class="text-muted">Calificación</small>
+                                            <p>
+                                                <i class="bi bi-star-fill text-warning"></i> 4.8/5.0
+                                            </p>
+                                        </div>
+                                        <div class="col-6">
+                                            <small class="text-muted">Citas Hoy</small>
+                                            <p>8 de 10</p>
+                                        </div>
+                                        <div class="col-6">
+                                            <small class="text-muted">Disponibilidad</small>
+                                            <p class="text-success">Disponible</p>
+                                        </div>
+                                    </div>
+                                    
+                                    <div class="mt-3">
+                                        <a href="/admin/empleados/ver/1" class="btn btn-sm btn-outline-primary">
+                                            <i class="bi bi-person-lines-fill"></i> Ver Perfil
+                                        </a>
+                                        <a href="/empleado/calendario/1" class="btn btn-sm btn-outline-info">
+                                            <i class="bi bi-calendar"></i> Ver Calendario
+                                        </a>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Historial y Notas -->
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="card">
+                                <div class="card-header">
+                                    <h6 class="mb-0">
+                                        <i class="bi bi-clock-history"></i> Historial de la Cita
+                                    </h6>
+                                </div>
+                                <div class="card-body">
+                                    <div class="timeline">
+                                        <div class="timeline-item">
+                                            <small class="text-muted">Hoy 09:00 AM</small>
+                                            <p>Recordatorio enviado al cliente</p>
+                                        </div>
+                                        <div class="timeline-item">
+                                            <small class="text-muted">18/11/2024 14:30 PM</small>
+                                            <p>Cita creada por el cliente via web</p>
+                                        </div>
+                                        <div class="timeline-item">
+                                            <small class="text-muted">18/11/2024 14:31 PM</small>
+                                            <p>Email de confirmación enviado</p>
+                                        </div>
+                                        <div class="timeline-item">
+                                            <small class="text-muted">18/11/2024 15:00 PM</small>
+                                            <p>Cliente actualizó notas adicionales</p>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="col-md-6">
+                            <div class="card">
+                                <div class="card-header">
+                                    <h6 class="mb-0">
+                                        <i class="bi bi-sticky"></i> Notas Administrativas
+                                    </h6>
+                                </div>
+                                <div class="card-body">
+                                    <div class="mb-3">
+                                        <textarea class="form-control" rows="3" placeholder="Agregar nota administrativa..."></textarea>
+                                    </div>
+                                    <button class="btn btn-sm btn-primary">
+                                        <i class="bi bi-plus-circle"></i> Agregar Nota
+                                    </button>
+                                    
+                                    <div class="mt-3">
+                                        <div class="alert alert-info small">
+                                            <strong>Admin - 19/11/2024:</strong> Cliente ha confirmado vía telefónica que asistirá.
+                                        </div>
+                                        <div class="alert alert-warning small">
+                                            <strong>Sistema - 18/11/2024:</strong> Cita creada automáticamente. Pendiente de confirmación.
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Modal para Cancelar -->
+    <div class="modal fade" id="cancelarModal" tabindex="-1">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header bg-danger text-white">
+                    <h5 class="modal-title">
+                        <i class="bi bi-x-circle"></i> Cancelar Cita
+                    </h5>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                    <p>¿Estás seguro de que deseas cancelar esta cita?</p>
+                    <div class="mb-3">
+                        <label class="form-label">Motivo de cancelación (opcional)</label>
+                        <textarea class="form-control" rows="3"></textarea>
+                    </div>
+                    <div class="form-check">
+                        <input class="form-check-input" type="checkbox" id="notificarCliente">
+                        <label class="form-check-label" for="notificarCliente">
+                            Notificar al cliente por email
+                        </label>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cerrar</button>
+                    <button type="button" class="btn btn-danger">Confirmar Cancelación</button>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Modal para Reagendar -->
+    <div class="modal fade" id="reagendarModal" tabindex="-1">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header bg-primary text-white">
+                    <h5 class="modal-title">
+                        <i class="bi bi-calendar-plus"></i> Reagendar Cita
+                    </h5>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                    <div class="mb-3">
+                        <label class="form-label">Nueva Fecha</label>
+                        <input type="date" class="form-control">
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">Nueva Hora</label>
+                        <select class="form-select">
+                            <option>09:00 AM</option>
+                            <option>09:30 AM</option>
+                            <option>10:00 AM</option>
+                            <option>10:30 AM</option>
+                            <option>11:00 AM</option>
+                            <option>02:00 PM</option>
+                            <option>02:30 PM</option>
+                            <option>03:00 PM</option>
+                        </select>
+                    </div>
+                    <div class="form-check">
+                        <input class="form-check-input" type="checkbox" id="notificarReagendar">
+                        <label class="form-check-label" for="notificarReagendar">
+                            Notificar cambios al cliente
+                        </label>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cerrar</button>
+                    <button type="button" class="btn btn-primary">Reagendar</button>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Bootstrap JS -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html> 

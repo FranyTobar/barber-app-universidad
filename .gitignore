@@ -1,0 +1,103 @@
+HELP.md
+target/
+.mvn/wrapper/maven-wrapper.jar
+!**/src/main/**/target/
+!**/src/test/**/target/
+
+### STS ###
+.apt_generated
+.classpath
+.factorypath
+.project
+.settings
+.springBeans
+.sts4-cache
+
+### IntelliJ IDEA ###
+.idea
+*.iws
+*.iml
+*.ipr
+
+### NetBeans ###
+/nbproject/private/
+/nbbuild/
+/dist/
+/nbdist/
+/.nb-gradle/
+build/
+!**/src/main/**/build/
+!**/src/test/**/build/
+
+### VS Code ###
+.vscode/
+
+# ============================================
+# ARCHIVOS DOCKER Y CONFIGURACIÓN SENSIBLE
+# ============================================
+
+# Variables de entorno (NO SUBIR A GITHUB)
+.env
+.env.local
+.env.production
+.env.development
+.env.test
+.env.*.local
+!.env.example  # Solo compartir la plantilla
+
+# Archivos de configuración específicos
+application-prod.properties
+application-local.properties
+application-dev.properties
+
+# Docker override files (pueden contener configuraciones locales)
+docker-compose.override.yml
+
+# Volúmenes y datos locales
+data/
+tmp/
+logs/
+uploads/
+
+# Archivos de IDE
+.vscode/
+.idea/
+*.iml
+*.ipr
+*.iws
+
+# Archivos del sistema
+.DS_Store
+Thumbs.db
+
+# Credenciales y certificados
+*.p12
+*.pem
+*.key
+*.crt
+*.cer
+
+# Backups
+*.backup
+*.bak
+
+# ============================================
+# ARCHIVOS ESPECÍFICOS DE SPRING BOOT
+# ============================================
+
+# Archivos de configuración local
+config/
+application-localhost.properties
+
+# Archivos generados
+/target/
+!target/*.jar  # Pero sí queremos el JAR para Docker
+
+# ============================================
+# ARCHIVOS DE DESPLIEGUE TEMPORALES
+# ============================================
+
+docker-compose.test.yml
+render.yaml
+railway.toml
+Procfile.local

@@ -1,0 +1,223 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+      xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Mi Perfil - BarberApp</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.8.1/font/bootstrap-icons.css">
+    <style>
+        .sidebar {
+            min-height: 100vh;
+            background: linear-gradient(135deg, #2c3e50 0%, #4a6491 100%);
+        }
+        .sidebar a {
+            color: white;
+            text-decoration: none;
+            padding: 12px 15px;
+            display: block;
+            border-radius: 5px;
+            margin: 5px 0;
+        }
+        .sidebar a:hover {
+            background: rgba(255, 255, 255, 0.1);
+        }
+        .sidebar a.active {
+            background: rgba(255, 255, 255, 0.2);
+        }
+        .profile-img {
+            width: 150px;
+            height: 150px;
+            object-fit: cover;
+        }
+    </style>
+</head>
+<body>
+    <div class="container-fluid">
+        <div class="row">
+            <!-- Sidebar (igual que dashboard) -->
+            <div class="col-md-3 col-lg-2 sidebar d-md-block p-3">
+                <div class="position-sticky pt-3">
+                    <h4 class="text-white text-center mb-4">
+                        <i class="bi bi-scissors"></i> BarberApp
+                    </h4>
+                    
+                    <div class="text-center mb-4">
+                        <div class="bg-white rounded-circle d-inline-flex align-items-center justify-content-center" 
+                             style="width: 80px; height: 80px;">
+                            <i class="bi bi-person-badge text-dark" style="font-size: 2rem;"></i>
+                        </div>
+                        <h5 class="text-white mt-2" sec:authentication="name">Empleado</h5>
+                        <span class="badge bg-warning">BARBERO</span>
+                    </div>
+                    
+                    <ul class="nav flex-column">
+                        <li class="nav-item">
+                            <a class="nav-link" href="/empleado/dashboard">
+                                <i class="bi bi-speedometer2"></i> Dashboard
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" href="/citas/empleado">
+                                <i class="bi bi-calendar-week"></i> Mis Citas
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" href="/citas/empleado/hoy">
+                                <i class="bi bi-calendar-check"></i> Citas Hoy
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" href="/empleado/clientes">
+                                <i class="bi bi-people"></i> Mis Clientes
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" href="/empleado/dashboard">
+                                <i class="bi bi-clock"></i> Mis Horarios
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link active" href="/empleado/perfil">
+                                <i class="bi bi-person-circle"></i> Mi Perfil
+                            </a>
+                        </li>
+                        <li class="nav-item mt-4">
+                            <a class="nav-link text-warning" href="/auth/logout">
+                                <i class="bi bi-box-arrow-right"></i> Cerrar Sesión
+                            </a>
+                        </li>
+                    </ul>
+                </div>
+            </div>
+            
+            <!-- Main Content -->
+            <div class="col-md-9 col-lg-10 ms-sm-auto px-md-4">
+                <!-- Navbar -->
+                <nav class="navbar navbar-light bg-white border-bottom shadow-sm">
+                    <div class="container-fluid">
+                        <span class="navbar-brand fw-bold text-dark">
+                            <i class="bi bi-person-circle"></i> Mi Perfil
+                        </span>
+                        <div class="navbar-text">
+                            <small class="text-muted">
+                                <i class="bi bi-calendar"></i> 
+                                <span th:text="${#dates.format(#dates.createNow(), 'dd/MM/yyyy')}"></span>
+                            </small>
+                        </div>
+                    </div>
+                </nav>
+                
+                <!-- Content -->
+                <div class="container-fluid py-4">
+                    <div class="alert alert-info">
+                        <h4><i class="bi bi-info-circle"></i> Información</h4>
+                        <p>Esta funcionalidad está actualmente en desarrollo.</p>
+                        <p>Próximamente podrás editar tu información personal, cambiar tu contraseña y configurar tus preferencias.</p>
+                    </div>
+                    
+                    <!-- Información actual del usuario -->
+                    <div class="card">
+                        <div class="card-header">
+                            <h5 class="mb-0">
+                                <i class="bi bi-person-badge"></i> Información Actual
+                            </h5>
+                        </div>
+                        <div class="card-body">
+                            <div class="row">
+                                <div class="col-md-4 text-center mb-3">
+                                    <div class="bg-light rounded-circle d-inline-flex align-items-center justify-content-center" 
+                                         style="width: 150px; height: 150px;">
+                                        <i class="bi bi-person-fill text-secondary" style="font-size: 4rem;"></i>
+                                    </div>
+                                </div>
+                                <div class="col-md-8">
+                                    <table class="table table-borderless">
+                                        <tr>
+                                            <th width="30%">Nombre:</th>
+                                            <td>Carlos Rodríguez</td>
+                                        </tr>
+                                        <tr>
+                                            <th>Email:</th>
+                                            <td>carlos.rodriguez@barberapp.com</td>
+                                        </tr>
+                                        <tr>
+                                            <th>Rol:</th>
+                                            <td><span class="badge bg-warning">BARBERO</span></td>
+                                        </tr>
+                                        <tr>
+                                            <th>Especialidad:</th>
+                                            <td>Corte Clásico y Moderno</td>
+                                        </tr>
+                                        <tr>
+                                            <th>Calificación:</th>
+                                            <td>
+                                                <span class="text-warning">
+                                                    <i class="bi bi-star-fill"></i>
+                                                    <i class="bi bi-star-fill"></i>
+                                                    <i class="bi bi-star-fill"></i>
+                                                    <i class="bi bi-star-fill"></i>
+                                                    <i class="bi bi-star-half"></i>
+                                                </span>
+                                                <span class="ms-2">4.5/5.0</span>
+                                            </td>
+                                        </tr>
+                                    </table>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Funcionalidades futuras -->
+                    <div class="card mt-3">
+                        <div class="card-header">
+                            <h5 class="mb-0">
+                                <i class="bi bi-tools"></i> Próximas Funcionalidades
+                            </h5>
+                        </div>
+                        <div class="card-body">
+                            <div class="row">
+                                <div class="col-md-6 mb-2">
+                                    <div class="d-flex align-items-center">
+                                        <i class="bi bi-pencil-square text-primary me-2"></i>
+                                        <span>Editar información personal</span>
+                                    </div>
+                                </div>
+                                <div class="col-md-6 mb-2">
+                                    <div class="d-flex align-items-center">
+                                        <i class="bi bi-key text-success me-2"></i>
+                                        <span>Cambiar contraseña</span>
+                                    </div>
+                                </div>
+                                <div class="col-md-6 mb-2">
+                                    <div class="d-flex align-items-center">
+                                        <i class="bi bi-image text-info me-2"></i>
+                                        <span>Subir foto de perfil</span>
+                                    </div>
+                                </div>
+                                <div class="col-md-6 mb-2">
+                                    <div class="d-flex align-items-center">
+                                        <i class="bi bi-bell text-warning me-2"></i>
+                                        <span>Configurar notificaciones</span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Botón de retorno -->
+                    <div class="mt-4 text-center">
+                        <a href="/empleado/dashboard" class="btn btn-primary btn-lg">
+                            <i class="bi bi-arrow-left"></i> Volver al Dashboard
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Bootstrap JS -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html> 

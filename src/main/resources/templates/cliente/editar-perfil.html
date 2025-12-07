@@ -1,0 +1,211 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Editar Perfil - BarberApp</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.8.1/font/bootstrap-icons.css">
+    <style>
+        .sidebar {
+            min-height: 100vh;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        }
+        .sidebar a {
+            color: white;
+            text-decoration: none;
+            padding: 12px 15px;
+            display: block;
+            border-radius: 5px;
+            margin: 5px 0;
+        }
+        .sidebar a:hover {
+            background: rgba(255, 255, 255, 0.1);
+        }
+        .sidebar a.active {
+            background: rgba(255, 255, 255, 0.2);
+        }
+    </style>
+</head>
+<body>
+    <div class="container-fluid">
+        <div class="row">
+            <!-- Sidebar -->
+            <div class="col-md-3 col-lg-2 sidebar d-md-block p-3">
+                <div class="position-sticky pt-3">
+                    <h4 class="text-white text-center mb-4">
+                        <i class="bi bi-scissors"></i> BarberApp
+                    </h4>
+                    
+                    <div class="text-center mb-4">
+                        <div class="bg-primary rounded-circle d-inline-flex align-items-center justify-content-center" 
+                             style="width: 80px; height: 80px;">
+                            <i class="bi bi-person-fill text-white" style="font-size: 2rem;"></i>
+                        </div>
+                        <h5 class="text-white mt-2" th:text="${cliente.nombre}">Cliente</h5>
+                        <span class="badge bg-light text-dark">CLIENTE</span>
+                    </div>
+                    
+                    <ul class="nav flex-column">
+                        <li class="nav-item">
+                            <a class="nav-link" href="/cliente/dashboard">
+                                <i class="bi bi-speedometer2"></i> Dashboard
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" href="/citas/cliente">
+                                <i class="bi bi-calendar-check"></i> Mis Citas
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" href="/cliente/perfil">
+                                <i class="bi bi-person-circle"></i> Mi Perfil
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link active" href="/cliente/perfil/editar">
+                                <i class="bi bi-pencil-square"></i> Editar Perfil
+                            </a>
+                        </li>
+                        <li class="nav-item mt-4">
+                            <a class="nav-link text-warning" href="/auth/logout">
+                                <i class="bi bi-box-arrow-right"></i> Cerrar Sesión
+                            </a>
+                        </li>
+                    </ul>
+                </div>
+            </div>
+            
+            <!-- Main Content -->
+            <div class="col-md-9 col-lg-10 ms-sm-auto px-md-4">
+                <!-- Navbar -->
+                <nav class="navbar navbar-light bg-white border-bottom shadow-sm">
+                    <div class="container-fluid">
+                        <span class="navbar-brand fw-bold text-primary">
+                            <i class="bi bi-pencil-square"></i> Editar Perfil
+                        </span>
+                        <div>
+                            <a href="/cliente/perfil" class="btn btn-outline-secondary btn-sm">
+                                <i class="bi bi-arrow-left"></i> Cancelar
+                            </a>
+                        </div>
+                    </div>
+                </nav>
+                
+                <!-- Content -->
+                <div class="container-fluid py-4">
+                    <!-- Alertas -->
+                    <div th:if="${error}" class="alert alert-danger alert-dismissible fade show" role="alert">
+                        <span th:text="${error}"></span>
+                        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                    </div>
+                    
+                    <div th:if="${success}" class="alert alert-success alert-dismissible fade show" role="alert">
+                        <span th:text="${success}"></span>
+                        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                    </div>
+                    
+                    <!-- Formulario de Edición -->
+                    <div class="card">
+                        <div class="card-header bg-primary text-white">
+                            <h5 class="mb-0"><i class="bi bi-person-lines-fill"></i> Información Personal</h5>
+                        </div>
+                        <div class="card-body">
+                            <form th:action="@{/cliente/perfil/actualizar}" method="post" th:object="${cliente}">
+                                <div class="row">
+                                    <div class="col-md-6 mb-3">
+                                        <label class="form-label">Nombre Completo *</label>
+                                        <input type="text" class="form-control" 
+                                               th:field="*{nombre}" required
+                                               placeholder="Ej: Juan Pérez">
+                                    </div>
+                                    <div class="col-md-6 mb-3">
+                                        <label class="form-label">Email *</label>
+                                        <input type="email" class="form-control" 
+                                               th:field="*{email}" required
+                                               placeholder="Ej: juan@email.com">
+                                        <small class="text-muted">Este es tu nombre de usuario para iniciar sesión</small>
+                                    </div>
+                                    <div class="col-md-6 mb-3">
+                                        <label class="form-label">Teléfono</label>
+                                        <input type="tel" class="form-control" 
+                                               th:field="*{telefono}"
+                                               placeholder="Ej: 555-1234567">
+                                    </div>
+                                    <div class="col-md-6 mb-3">
+                                        <label class="form-label">Frecuencia de Visita</label>
+                                        <select class="form-select" th:field="*{frecuenciaVisita}">
+                                            <option value="">Seleccionar...</option>
+                                            <option value="SEMANAL">Semanal</option>
+                                            <option value="QUINCENAL">Quincenal</option>
+                                            <option value="MENSUAL">Mensual</option>
+                                            <option value="OCASIONAL">Ocasional</option>
+                                        </select>
+                                    </div>
+                                    <div class="col-12 mb-3">
+                                        <label class="form-label">Preferencias de Corte</label>
+                                        <textarea class="form-control" th:field="*{preferenciasCorte}" 
+                                                  rows="3" 
+                                                  placeholder="Ej: Prefiero corte corto por los lados, más largo arriba. Uso gel para el cabello. Etc."></textarea>
+                                        <small class="text-muted">Esta información ayuda a tu barbero a conocerte mejor</small>
+                                    </div>
+                                </div>
+                                
+                                <div class="d-flex justify-content-between mt-4">
+                                    <a href="/cliente/perfil" class="btn btn-secondary">
+                                        <i class="bi bi-x-circle"></i> Cancelar
+                                    </a>
+                                    <button type="submit" class="btn btn-primary">
+                                        <i class="bi bi-check-circle"></i> Guardar Cambios
+                                    </button>
+                                </div>
+                            </form>
+                        </div>
+                    </div>
+                    
+                    <!-- Información Importante -->
+                    <div class="alert alert-info mt-4">
+                        <h6><i class="bi bi-info-circle"></i> Información Importante</h6>
+                        <ul class="mb-0">
+                            <li>Los campos marcados con * son obligatorios</li>
+                            <li>El email debe ser único en el sistema</li>
+                            <li>Los cambios se reflejarán inmediatamente</li>
+                            <li>Para cambiar tu contraseña, usa la opción en la página de perfil</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Bootstrap JS -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"></script>
+    
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            console.log("=== ✏️ EDITAR PERFIL CARGADO ===");
+            
+            // Validar formulario antes de enviar
+            const form = document.querySelector('form');
+            form.addEventListener('submit', function(e) {
+                const nombre = this.querySelector('input[th\\:field*="nombre"]').value;
+                const email = this.querySelector('input[th\\:field*="email"]').value;
+                
+                if (!nombre || nombre.trim().length < 3) {
+                    e.preventDefault();
+                    alert('El nombre debe tener al menos 3 caracteres');
+                    return;
+                }
+                
+                if (!email || !email.includes('@')) {
+                    e.preventDefault();
+                    alert('Por favor ingresa un email válido');
+                    return;
+                }
+                
+                console.log("✅ Formulario válido, enviando cambios...");
+            });
+        });
+    </script>
+</body>
+</html> 
